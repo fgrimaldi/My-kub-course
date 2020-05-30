@@ -1,0 +1,286 @@
+# Calico Data Plane Encryption
+
+By the end of this exercise, you should be able to:
+
+ - Encrypt Calico's data plane.
+
+1.  Create a file `deployment.yaml` describing a simple insecure-demo deployment:
+
+    ```yaml
+	apiVersion: apps/v1
+	kind: Deployment
+	metadata:
+	  name: centos-insecure-demo
+	spec:
+	  replicas: 3
+	  selector:
+	    matchLabels:
+	      app: centos
+	  template:
+	    metadata:
+	      labels:
+	        app: centos
+	    spec:
+	      containers:
+	      - name: centos
+	        image: centos:7
+	        command: ["sleep", "100000"]
+    ```
+
+2.  Create your deployment (make sure your client bundle is set up to connect to your UCP cluster):
+
+    ```bash
+    [centos@infra ~]$ kubectl create -f deployment.yaml
+    ```
+
+3.  List information for the pods created for your deployment:
+
+    ```bash
+	[centos@infra ~]$ kubectl get pods -o wide
+
+	NAME                                    READY ... IP                NODE
+	centos-insecure-demo-6565f7b76f-fqwbr   1/1   ... 192.168.124.15    ucp-node-1
+	centos-insecure-demo-6565f7b76f-jfffv   1/1   ... 192.168.162.207   ucp-manager
+	centos-insecure-demo-6565f7b76f-vb58r   1/1   ... 192.168.52.141    ucp-node-0
+    ```
+
+4.  Set the pod on `ucp-node-0` to ping the pod on `ucp-node-1`:
+
+    ```bash
+    [centos@infra ~]$ kubectl exec -it <pod name on ucp-node-0> \
+        ping <pod IP on ucp-node-1>
+    ```
+
+5.  On `ucp-node-0`, use `tcpdump` to inspect traffic on eth0 using either protocol 4 (IP in IP, Calico's default data plane) or protocol 50 (IPSec encryption, which we'll set up soon):
+
+    ```bash
+    [centos@ucp-node-0 ~]$ sudo tcpdump -n -i eth0 proto 4 or proto 50
+
+    04:39:58.700574 IP 10.10.2.102 > 10.10.24.138: IP 192.168.52.141 > 192.168.124.15:
+        ICMP echo request, id 11, seq 1, length 64 (ipip-proto-4)
+    04:39:58.701332 IP 10.10.24.138 > 10.10.2.102: IP 192.168.124.15 > 192.168.52.141:
+        ICMP echo reply, id 11, seq 1, length 64 (ipip-proto-4)
+    04:39:59.702533 IP 10.10.2.102 > 10.10.24.138: IP 192.168.52.141 > 192.168.124.15:
+        ICMP echo request, id 11, seq 2, length 64 (ipip-proto-4)
+    04:39:59.703245 IP 10.10.24.138 > 10.10.2.102: IP 192.168.124.15 > 192.168.52.141:
+        ICMP echo reply, id 11, seq 2, length 64 (ipip-proto-4)
+    ...
+    ```
+
+    The two IPs (`10.10.2.102` and `10.10.24.138` in my example above) should correspond to the private IPs of `ucp-node-0` and `ucp-node-1`; the trailing `ipip-proto-4` indicates this is the IP in IP traffic we expect from an unencrypted calico data plane.
+
+6.  On another connection to your `infra` node, deploy the secure overlay daemonset and related roles (note you'll need to do `eval "$(<env.sh)"` again on the new connection to point `kubectl` in this new environment at your UCP cluster):
+
+
+
+
+
+    ```bash
+    [centos@infra ~]$ kubectl apply -f https://bit.ly/2QqWGMR
+    ```
+
+
+
+
+
+
+
+    ######################
+    # Cluster role for key management jobs
+    ######################
+    kind: ClusterRole
+    apiVersion: rbac.authorization.k8s.io/v1beta1
+    metadata:
+      name: ucp-secureoverlay-mgr
+    rules:
+      - apiGroups: [""]
+        resources:
+          - secrets
+        verbs:
+          - get
+          - update
+    ---
+    ######################
+    # Cluster role binding for key management jobs
+    ######################
+    apiVersion: rbac.authorization.k8s.io/v1beta1
+    kind: ClusterRoleBinding
+    metadata:
+      name: ucp-secureoverlay-mgr
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: ucp-secureoverlay-mgr
+    subjects:
+    - kind: ServiceAccount
+      name: ucp-secureoverlay-mgr
+      namespace: kube-system
+    ---
+    ######################
+    # Service account for key management jobs
+    ######################
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: ucp-secureoverlay-mgr
+      namespace: kube-system
+    ---
+    ######################
+    # Cluster role for secure overlay per-node agent
+    ######################
+    kind: ClusterRole
+    apiVersion: rbac.authorization.k8s.io/v1beta1
+    metadata:
+      name: ucp-secureoverlay-agent
+    rules:
+      - apiGroups: [""]
+        resources:
+          - nodes
+        verbs:
+          - get
+          - list
+          - watch
+    ---
+    ######################
+    # Cluster role binding for secure overlay per-node agent
+    ######################
+    apiVersion: rbac.authorization.k8s.io/v1beta1
+    kind: ClusterRoleBinding
+    metadata:
+      name: ucp-secureoverlay-agent
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: ucp-secureoverlay-agent
+    subjects:
+    - kind: ServiceAccount
+      name: ucp-secureoverlay-agent
+      namespace: kube-system
+    ---
+    ######################
+    # Service account secure overlay per-node agent
+    ######################
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: ucp-secureoverlay-agent
+      namespace: kube-system
+    ---
+    ######################
+    # K8s secret of current key configuration
+    ######################
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: ucp-secureoverlay
+      namespace: kube-system
+    type: Opaque
+    data:
+      keys: ""
+    ---
+    ######################
+    # DaemonSet for secure overlay per-node agent
+    ######################
+    apiVersion: apps/v1
+    kind: DaemonSet
+    metadata:
+      name: ucp-secureoverlay-agent
+      namespace: kube-system
+      labels:
+        k8s-app: ucp-secureoverlay-agent
+    spec:
+      selector:
+        matchLabels:
+          k8s-app: ucp-secureoverlay-agent
+      updateStrategy:
+        type: RollingUpdate
+      template:
+        metadata:
+          labels:
+            k8s-app: ucp-secureoverlay-agent
+          annotations:
+            scheduler.alpha.kubernetes.io/critical-pod: ''
+        spec:
+          hostNetwork: true
+          priorityClassName: system-node-critical
+          terminationGracePeriodSeconds: 10
+          serviceAccountName: ucp-secureoverlay-agent
+          containers:
+          - name: ucp-secureoverlay-agent
+            image: docker/ucp-secureoverlay-agent:3.1.0-beta1
+            securityContext:
+              capabilities:
+                add: ["NET_ADMIN"]
+            env:
+            - name: MY_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            volumeMounts:
+            - name: ucp-secureoverlay
+              mountPath: /etc/secureoverlay/
+              readOnly: true
+          volumes:
+          - name: ucp-secureoverlay
+            secret:
+              secretName: ucp-secureoverlay
+    ---
+    ######################
+    # Deployment for manager of the whole cluster (primarily to rotate keys)
+    ######################
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: ucp-secureoverlay-mgr
+      namespace: kube-system
+    spec:
+      selector:
+        matchLabels:
+          app: ucp-secureoverlay-mgr
+      replicas: 1
+      template:
+        metadata:
+          name: ucp-secureoverlay-mgr
+          namespace: kube-system
+          labels:
+            app: ucp-secureoverlay-mgr
+        spec:
+          serviceAccountName: ucp-secureoverlay-mgr
+          restartPolicy: Always
+          containers:
+          - name: ucp-secureoverlay-mgr
+            image: docker/ucp-secureoverlay-mgr:3.1.0-beta1
+
+
+
+7.  Back on your connection to `ucp-node-0` running `tcpdump`, it will look like nothing has happened at first; wait a minute or two for the secure overlay deployment to converge, and you should see the IP in IP protocol communications replaced with encapsulated security protocol (ESP) communications, indicating that your pings are now encrypted by IPSec:
+
+    ```bash
+    ...
+    04:51:25.094279 IP 10.10.2.102 > 10.10.24.138: IP 192.168.52.141 > 192.168.124.15:
+        ICMP echo request, id 11, seq 687, length 64 (ipip-proto-4)
+    04:51:25.095151 IP 10.10.24.138 > 10.10.2.102: IP 192.168.124.15 > 192.168.52.141:
+        ICMP echo reply, id 11, seq 687, length 64 (ipip-proto-4)
+    04:51:26.095529 IP 10.10.2.102 > 10.10.24.138: ESP(spi=0xebd8fcd2,seq=0x1), length 112
+    04:51:26.096495 IP 10.10.24.138 > 10.10.2.102: ESP(spi=0x78d72c4a,seq=0x1), length 112
+    ...
+    ```
+
+8.  Run the following on `infra` to clean up your environment by deleting all the kube assets deployed above:
+
+    ```bash
+    kubectl delete deployment ucp-secureoverlay-mgr --namespace=kube-system
+    kubectl delete daemonset ucp-secureoverlay-agent --namespace=kube-system
+    kubectl delete secret ucp-secureoverlay --namespace=kube-system
+    kubectl delete serviceaccount ucp-secureoverlay-agent --namespace=kube-system
+    kubectl delete clusterrolebinding ucp-secureoverlay-agent --namespace=kube-system
+    kubectl delete clusterrole ucp-secureoverlay-agent --namespace=kube-system
+    kubectl delete clusterrolebinding ucp-secureoverlay-mgr --namespace=kube-system
+    kubectl delete clusterrole ucp-secureoverlay-mgr --namespace=kube-system
+    kubectl delete serviceaccounts ucp-secureoverlay-mgr --namespace=kube-system
+    kubectl delete deployment centos-insecure-demo
+    ```
+
+## Conclusion
+
+In this exercise, we encrypted Calico's data plane; have a look at the contents of the yaml you deployed from [https://bit.ly/2QqWGMR](https://bit.ly/2QqWGMR), and you'll see that this functionality is delivered by a daemonSet with permissions to manipulate each host's network. Bear in mind that this encryption must be applied manually, as you did in this demo; neither Calico or UCP imposes it by default.

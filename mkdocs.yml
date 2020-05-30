@@ -1,0 +1,67 @@
+# Project information
+site_name: LPIC-1 Course
+site_url: https://deso.tech
+site_description: LPIC-1 Course
+site_author: Desotech
+copyright: Desotech Docs is licensed under the MIT License (MIT), this <a href="https://readthedocs.org/">Readthedocs.org</a> documentation uses <a href="https://www.mkdocs.org/">Mkdocs</a> and the <a href="https://squidfunk.github.io/mkdocs-material">Material theme</a>.
+
+# extra project info and template customisation
+extra:
+  support:
+    desotech_website: https://deso.tech
+
+theme:
+  name: null
+  custom_dir: material
+  highlightjs: false
+  hljs_languages:
+      - yaml
+
+#  include_sidebar: true
+  # 404 page
+  static_templates:
+    - 404.html
+
+  # Don't include MkDocs' JavaScript
+  include_search_page: false
+  search_index_only: true
+
+  # Default values, taken from mkdocs_theme.yml
+  language: en
+  feature:
+    tabs: false
+  palette:
+    primary: grey
+    accent: grey
+  font:
+    text: Roboto
+    code: Roboto Mono
+  favicon: /custom_themes/assets/images/favicon.ico
+  logo: '/custom_themes/assets/images/desotech-cubo-small.png'
+# Extensions
+markdown_extensions:
+  - codehilite
+  - markdown.extensions.admonition
+  - markdown.extensions.codehilite:
+      guess_lang: false
+  - markdown.extensions.def_list
+  - markdown.extensions.meta
+  - markdown.extensions.toc:
+      permalink: true
+  - pymdownx.arithmatex
+  - pymdownx.betterem
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.details
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+plugins:
+  - minify:
+      minify_html: false

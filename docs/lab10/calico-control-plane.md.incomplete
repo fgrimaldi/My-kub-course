@@ -1,0 +1,69 @@
+# Calico Control Plane
+
+https://octetz.com/docs/2020/2020-10-01-calico-routing-modes/
+
+Calico automatically configures the host routing table of each node in your cluster to create the networking control plane that supports inter-pod communication across hosts. In this exercise, we'll learn how to check these routing table entries by hand as one thing to check when troubleshooting Calico networking.
+
+By the end of this exercise, you should be able to:
+
+ - Audit host routing table configuration to troubleshoot Calico control plane
+
+## Checking Inter-Host Routes
+
+1.  Calico assigns at least one /26 subnet to each host in your cluster; pods always receive an IP from one of the subnets owned by its host. Therefore, we know which host to route inter-pod traffic to based solely on the subnet of that pod's IP. Look at the routing table on `ucp-node-0` to see an example of this:
+
+    ```bash
+    [centos@ucp-node-0 ~]$ ip route
+
+    ...
+
+    192.168.123.192/26 via 10.10.27.213 dev tunl0 proto bird onlink
+    192.168.125.64/26 via 10.10.8.157 dev tunl0 proto bird onlink
+    ```
+
+    Look for the lines beginning with `<IP>/26`, like the example above. There should be one for each of the other nodes in your cluster. In the example above, any traffic on the `192.168.123.192/26` subnet will get sent to `10.10.27.213`, which happens to be the IP of my `ucp-manager` node; the other one corresponds to my `ucp-node-1`.
+
+2.  Do the same on `ucp-node-1`, and confirm that there is a /26 subnet getting routed to `ucp-node-0`'s IP.
+
+## Checking Pod Routes
+
+2.  Create a single nginx pod with the following spec:
+
+    ```yaml
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: demo
+      namespace: default
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.7.9
+    ```
+
+    Determine which node this pod got scheduled on, and the pod's IP by navigating **Kubernetes -> Pods -> demo**, or using `kubectl describe pods demo` from the command line. For me, this pod was scheduled on `ucp-node-0` and has IP `192.168.52.93`.
+
+3.  Look at the routing table on whichever host is running your demo pod:
+
+    ```bash
+    [centos@ucp-node-0 ~]$ ip route
+
+    ...
+
+    192.168.52.93 dev calib27d5ee840d scope link
+    192.168.123.192/26 via 10.10.27.213 dev tunl0 proto bird onlink
+    192.168.125.64/26 via 10.10.8.157 dev tunl0 proto bird onlink
+    ```
+
+    The line `192.168.52.93 dev calib27d5ee840d scope link` matches my pod's IP, and is forwarding traffic destined to it to the device `calib27d5ee840d`, which is a virtual ethernet endpoint that transmits packets to and from this pod's network namespace.
+
+4.  Try `curl`ing your pod's IP on port 80 from both your worker nodes; calico's routing table configuration ensures the request is sent to the correct place regardless of which host it is issued from.
+
+5.  Clean up by deleting your demo pod.
+
+## Conclusion
+
+In this exercise, we briefly toured the default routing table rules Calico creates to implement Kubernetes' requirement of a cluster-wide flat network upon which all pods can reach all other pods by default. If you are having difficulty with inter-pod communication, making sure nothing corrupted the two types of routes (/26 routes for inter-node traffic, and routes to `calib*` virtual ethernet endpoints to forward traffic from the host onto the correct pod) is a good early step.
+
+
+https://itnext.io/kubernetes-network-deep-dive-7492341e0ab5
