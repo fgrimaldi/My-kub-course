@@ -1,7 +1,7 @@
 # Project information
-site_name: LPIC-1 Course
+site_name: Kubernetes
 site_url: https://deso.tech
-site_description: LPIC-1 Course
+site_description: Kubernetes
 site_author: Desotech
 copyright: Desotech Docs is licensed under the MIT License (MIT), this <a href="https://readthedocs.org/">Readthedocs.org</a> documentation uses <a href="https://www.mkdocs.org/">Mkdocs</a> and the <a href="https://squidfunk.github.io/mkdocs-material">Material theme</a>.
 
