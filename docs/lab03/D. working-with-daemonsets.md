@@ -15,15 +15,17 @@ File: /home/student/ds.yaml
   
 ```yaml
 apiVersion: apps/v1
-kind: DaemonSet #<<<---- Change to Daemonset  
+kind: DaemonSet 
 metadata:  
-  name: daemonset1 #<<<---- Change the name of Daemonset  
+  name: daemonset1  
 spec:
-  replicas: 2 #<<<----Remove this line
+  selector:
+    matchLabels:
+      system: daemonset1 
   template:  
     metadata:  
       labels:  
-        system: daemonset1 #<<<---- Change the system label  
+        system: daemonset1  
     spec:  
       containers:  
       - name: nginx  

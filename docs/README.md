@@ -19,6 +19,5 @@
 
 [Lab09](lab09/lab09.md) - livenessProbe / readinessProbe
 
-[Lab10](lab10/lab10.md) - Advanced Networking
+[Lab10](lab10/lab10.md) - Resource Limits
 
-[Lab11](lab11/lab11.md) - Security
