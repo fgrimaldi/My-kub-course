@@ -15,7 +15,7 @@ metadata:
 spec:  
   containers:  
   - name: secret-pod
-    image: busybox  
+    image: gcr.io/desotech/busybox  
     command:  
       - sleep  
       - "10000"  

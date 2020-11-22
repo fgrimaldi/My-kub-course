@@ -11,21 +11,21 @@ Create a Pod with a sidecar container that expose the log file:
 apiVersion: v1
 kind: Pod
 metadata:
-  name:sidecar-pod
+  name: sidecar-pod
 spec:
   volumes:
   - name: logs-sharing 
     emptyDir: {}
   containers:
   - name: main-app-container
-    image: alpine
+    image: gcr.io/desotech/alpine
     command: ["/bin/sh"]
     args: ["-c", "while true; do date >> /var/log/app.txt; sleep 5;done"]
     volumeMounts:
     - name: logs-sharing
       mountPath: /var/log
   - name: sidecar-container
-    image: nginx:1.7.9
+    image: gcr.io/desotech/nginx
     ports:
       - containerPort: 80
     volumeMounts:
@@ -83,7 +83,7 @@ spec:
   - name: main-app-container
     # This application writes system usage information (`top`) to a status 
     # file every five seconds.
-    image: alpine
+    image: gcr.io/desotech/alpine
     command: ["/bin/sh"]
     args: ["-c", "while true; do date > /var/log/top.txt && top -n 1 -b >> /var/log/top.txt; sleep 5;done"]
     volumeMounts:
@@ -92,7 +92,7 @@ spec:
   - name: adapter-container
     # Our adapter container will inspect the contents of the app's top file,
     # reformat it, and write the correctly formatted output to the status file
-    image: alpine
+    image: gcr.io/desotech/alpine
     command: ["/bin/sh"]
     args: ["-c", "while true; do (cat /var/log/top.txt | head -1 > /var/log/status.txt) && (cat /var/log/top.txt | head -2 | tail -1 | grep
  -o -E '\\d+\\w' | head -1 >> /var/log/status.txt) && (cat /var/log/top.txt | head -3 | tail -1 | grep

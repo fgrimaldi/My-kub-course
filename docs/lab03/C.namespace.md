@@ -113,7 +113,7 @@ spec:
     spec:
       containers:
       - name: container01
-        image: nginx
+        image: gcr.io/desotech/nginx
         ports:
         - containerPort: 80
 ```
@@ -141,7 +141,7 @@ spec:
     spec:
       containers:
       - name: container01
-        image: nginx
+        image: gcr.io/desotech/nginx
         ports:
         - containerPort: 80
 ```
@@ -222,7 +222,7 @@ production-test   3/3     3            3           4m6s
 This will alter the current context to automatically apply future actions to the __production__ namespace.
 Try to create a deployment with nginx image withous specify namespace:
 ```
-student@master:~$ kubectl create deploy nginx --image=nginx
+student@master:~$ kubectl create deploy nginx --image=gcr.io/desotech/nginx
 ```
 ```
 deployment.apps/nginx created
@@ -350,7 +350,7 @@ At this point, all requests we make to the Kubernetes cluster from the command l
 
 Let’s create some contents.
 ```
-student@master:~$ kubectl create deploy nginx-dev --image=nginx
+student@master:~$ kubectl create deploy nginx-dev --image=gcr.io/desotech/nginx
 ```
 You will create a deployment of image nginx on development namespace.
 ```
@@ -365,7 +365,7 @@ Switched to context "prd".
 ```
 You will create a deployment of image nginx on production namespace.
 ```
-student@master:~$ kubectl create deploy nginx-prd --image=nginx
+student@master:~$ kubectl create deploy nginx-prd --image=gcr.io/desotech/nginx
 ```
 ```
 deployment.apps/nginx-prd created
@@ -532,7 +532,7 @@ namespace/ns-without-limit created
 Create a deployment inside namespace `ns-without-limit`
 
 ```
-kubectl -n ns-without-limit create deployment stress-without-limits --image vish/stress  
+kubectl -n ns-without-limit create deployment stress-without-limits --image gcr.io/desotech/vish/stress  
 deployment.apps/stress-without-limits created
 ```
 
@@ -554,7 +554,7 @@ As you can see, no limit was applied.
 Create a deployment inside namespace `ns-with-limit`
 
 ```
-kubectl -n ns-with-limit create deployment stress-with-limits --image vish/stress
+kubectl -n ns-with-limit create deployment stress-with-limits --image gcr.io/desotech/vish/stress
 ```
 ```
 deployment.apps/stress-with-limits created

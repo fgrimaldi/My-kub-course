@@ -36,7 +36,7 @@ spec:
     spec:
       containers:
       - name: container01
-        image: nginx
+        image: gcr.io/desotech/nginx
         ports:
         - containerPort: 80
 ```
@@ -113,7 +113,7 @@ Pod Template:
            environment=dev
   Containers:
    container01:
-    Image:        nginx
+    Image:        gcr.io/desotech/nginx
     Port:         80/TCP
     Host Port:    0/TCP
     Environment:  <none>

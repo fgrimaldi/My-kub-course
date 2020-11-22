@@ -84,7 +84,7 @@ spec:
     spec:
       containers:
       - name: destination-container
-        image: containous/whoami
+        image: gcr.io/desotech/containous/whoami
 ```
 
 2.  Declare a ClusterIP service to route traffic to your `destination` deployment internally:
@@ -131,7 +131,7 @@ spec:
     spec:
       containers:
       - name: origin-container
-        image: nicolaka/netshoot:latest
+        image: gcr.io/desotech/netshoot
         command: ["sleep"]
         args: ["1000000"]
 ```

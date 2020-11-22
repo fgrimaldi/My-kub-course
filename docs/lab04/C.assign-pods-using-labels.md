@@ -67,7 +67,7 @@ kube-system   calico-kube-controllers   1/1     1            1           2d13h
 kube-system   coredns                   2/2     2            2           2d14h
 ```
 
-For the purpose of the exercise we will assign the master node to be special hardware and the secondary node to be normal.
+For the purpose of the exercise we will assign the master node to be normal hardware and the secondary node to be special.
 
 
 ```
@@ -118,7 +118,7 @@ spec:
     spec:
       containers:
       - name: special01
-        image: busybox
+        image: gcr.io/desotech/busybox
         args:
         - sleep
         - "100000000"
@@ -195,7 +195,7 @@ spec:
     spec:
       containers:
       - name: noselector01
-        image: busybox
+        image: gcr.io/desotech/busybox
         args:
         - sleep
         - "100000000"
@@ -278,7 +278,7 @@ spec:
     spec:
       containers:
       - name: normal01
-        image: busybox
+        image: gcr.io/desotech/busybox
         args:
         - sleep
         - "100000000"

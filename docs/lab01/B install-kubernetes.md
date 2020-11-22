@@ -321,7 +321,7 @@ root@master:~# apt-get update
 Install the software. There are regular releases the newest of which can be used by omitting the equal sign and version information on the command line. Historically new version have lots of changes and a good chance of a bug or five.
 
 ```console
-root@master:~# apt-get install -y kubeadm=1.15.4-00 kubelet=1.15.4-00 kubectl=1.15.4-00  
+root@master:~# apt-get install -y kubeadm=1.16.3-00 kubelet=1.16.3-00 kubectl=1.16.3-00  
 ```
 
 ```console
@@ -359,7 +359,7 @@ We can deploy our first k8s cluster using kubeadm
 Fortunately, Kubernetes has a component called the Kubelet which manages containers running on a single host. It uses the API server but it doesn't depend on it so we can actually use the Kubelet to manage the control plane components. This is exactly what kubeadm sets us up to do. Let's look at what happens when we run kubeadm.
 
 ```console
-root@controller01:~# kubeadm init --kubernetes-version 1.15.4 --pod-network-cidr 192.168.0.0/16 | tee /root/kubeadm-init.out
+root@controller01:~# kubeadm init --kubernetes-version 1.16.3 --pod-network-cidr 192.168.0.0/16 | tee /root/kubeadm-init.out
 ```
 
 ```console

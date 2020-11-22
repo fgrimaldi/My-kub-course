@@ -124,7 +124,7 @@ metadata:
 spec:  
   containers:  
   - name: nginx  
-    image: nginx  
+    image: gcr.io/desotech/nginx  
     env:  
     - name: model  
       valueFrom:  
@@ -175,7 +175,7 @@ metadata:
 spec:  
   containers:  
   - name: nginx  
-    image: nginx  
+    image: gcr.io/desotech/nginx  
     env:  
     - name: model  
       valueFrom:  
@@ -284,7 +284,7 @@ metadata:
 spec:  
   containers:  
   - name: nginx  
-    image: nginx  
+    image: gcr.io/desotech/nginx  
     volumeMounts:  
     - name: names-vol  
       mountPath: /etc/names  

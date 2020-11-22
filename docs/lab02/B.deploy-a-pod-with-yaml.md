@@ -15,7 +15,7 @@ metadata:
 spec:
   containers:
     - name: nginx
-      image: nginx
+      image: gcr.io/desotech/nginx
       ports:
         - containerPort: 80
 ```
@@ -62,7 +62,7 @@ IP:           192.168.171.65
 Containers:
   nginx:
     Container ID:   docker://171223906f71fa1fa3775a14ac011d601ee8be8ee9a57b26b8a72f47ee93db6d
-    Image:          nginx
+    Image:          gcr.io/desotech/nginx
     Image ID:       docker-pullable://nginx@sha256:48cbeee0cb0a3b5e885e36222f969e0a2f41819a68e07aeb6631ca7cb356fed1
     Port:           80/TCP
     Host Port:      0/TCP
@@ -108,7 +108,7 @@ From:
 ```
 spec:
   containers:
-  - image: nginx
+  - image: gcr.io/desotech/nginx
     imagePullPolicy: Always
     name: nginx
     ports:
@@ -119,7 +119,7 @@ To:
 ```
 spec:
   containers:
-  - image: httpd
+  - image: gcr.io/desotech/httpd
     imagePullPolicy: Always
     name: nginx
     ports:
@@ -138,7 +138,7 @@ Try to describe your POD filtering only Image.
 student@master:~$ kubectl describe pod/website | grep Image:
 ```
 ```
-    Image:          httpd
+    Image:          gcr.io/desotech/httpd
 ```
 As you can see, the image are changed by nginx to httpd
 The nginx container had been killed and created a new one with httpd.

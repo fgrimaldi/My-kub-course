@@ -61,7 +61,7 @@ Each taint has one of the following effects:
 Run an nginx deployment with 1 replica.
 
 ```
-student@master:~$ kubectl create deployment nginx --image=nginx
+student@master:~$ kubectl create deployment nginx --image=gcr.io/desotech/nginx
 ```
 ```
 deployment.apps/nginx created
@@ -215,7 +215,7 @@ No resources found.
 This namespace should be empty.
 Create a deployment test with image nginx
 ```
-student@master:~$ kubectl create deployment test --image nginx
+student@master:~$ kubectl create deployment test --image gcr.io/desotech/nginx
 ```
 ```
 deployment.apps/test created
@@ -279,7 +279,7 @@ spec:
     spec:
       containers:
       - name: container01
-        image: nginx
+        image: gcr.io/desotech/nginx
         ports:
         - containerPort: 80
       tolerations:
@@ -328,7 +328,7 @@ spec:
     spec:
       containers:
       - name: container01
-        image: nginx
+        image: gcr.io/desotech/nginx
         ports:
         - containerPort: 80
 ```

@@ -15,9 +15,6 @@
 
 [Lab07](lab07/lab07.md) - Configmap & Volumes
 
-[Lab08](lab08/lab08.md) - The RBAC Model
 
-[Lab09](lab09/lab09.md) - livenessProbe / readinessProbe
 
-[Lab10](lab10/lab10.md) - Resource Limits
 

@@ -16,7 +16,7 @@ worker   Ready    <none>   2d1h   v1.15.0
 Create a deployment drain with image nginx
 
 ```
-student@master:~$ kubectl create deployment drain --image nginx
+student@master:~$ kubectl create deployment drain --image gcr.io/desotech/nginx
 ```
 ```
 deployment.apps/drain created

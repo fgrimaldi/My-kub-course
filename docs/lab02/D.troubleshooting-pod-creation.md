@@ -45,7 +45,7 @@ metadata:
 spec:  
   containers:  
   - name: web  
-    image: httpd2.4  
+    image: gcr.io/desotech/httpd2.4  
     ports:  
     - containerPort: 80  
 
@@ -76,11 +76,11 @@ metadata:
 spec:  
   containers:  
   - name: web  
-    image: nginx  
+    image: gcr.io/desotech/nginx  
     ports:  
     - containerPort: 80  
   - name: centos  
-    image: centos:7
+    image: gcr.io/desotech/centos:7
 ```
 
 ```

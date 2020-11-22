@@ -29,7 +29,7 @@ spec:
     spec:  
       containers:  
       - name: nginx  
-        image: nginx:1.7.9  
+        image: gcr.io/desotech/nginx 
         ports:  
         - containerPort: 80
 ```

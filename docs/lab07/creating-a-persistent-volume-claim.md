@@ -73,7 +73,7 @@ metadata:
 spec:
   containers:
     - name: busybox
-      image: busybox
+      image: gcr.io/desotech/busybox
       command: ['sh', '-c', 'sleep 5 && ls /nfs-mount && sleep 3600']
       volumeMounts: 
       - name: volume-nfs 

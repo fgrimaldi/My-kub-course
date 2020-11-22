@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
       - name: container01
-        image: nginx:1.16
+        image: gcr.io/desotech/nginx:1.16
         ports:
         - containerPort: 80
 ```
@@ -77,7 +77,7 @@ Pod Template:
            environment=dev
   Containers:
    container01:
-    Image:        nginx
+    Image:        gcr.io/desotech/nginx
     Port:         80/TCP
     Host Port:    0/TCP
     Environment:  <none>
@@ -171,15 +171,12 @@ deployment-test-5bdd7644cd-tqwwc   1/1     Running   0          4m20s
 
 Scaling Resources
 ```
-$ kubectl scale --replicas=3 rs/foo                                                      # Scale a replicaset named 'foo' to 3
-$ kubectl scale --replicas=3 -f foo.yaml                                                 # Scale a resource specified in "foo.yaml" to 3
-$ kubectl scale --current-replicas=3 --replicas=2 deployment.extensions/deployment-test  # If the deployment named mysql's current size is 2, scale mysql to 3
-$ kubectl scale --replicas=5 rc/foo rc/bar rc/baz                                        # Scale multiple replication controllers
+$ kubectl scale --replicas=5 deployment deployment-test                                               
 ```
 The new pod have been created in automatically by ReplicaSet according to Deployment desiderated state.
 
 ```
-$ kubectl set image deployment deployment-test container01=nginx:1.17
+$ kubectl set image deployment deployment-test container01=gcr.io/desotech/nginx:1.17
 
 $ kubectl rollout status deployment deployment-test
 ```
